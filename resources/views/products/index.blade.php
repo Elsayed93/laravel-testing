@@ -19,13 +19,13 @@
     <div class="container my-5">
 
         <div class="row">
-
             @forelse ($products as $product)
                 <div class="col-md-4 mt-4">
                     <div class="card">
                         <div class="card-body" style="min-height: 12rem;">
                             <h5 class="card-title">{{ $product->name }}</h5>
                             <h6 class="card-subtitle mb-2 text-muted">{{ $product->price }} EGP</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ $product->euro_price }} Euro</h6>
                             <p class="card-text">{{ $product->description }}</p>
                         </div>
                     </div>
