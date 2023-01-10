@@ -16,14 +16,15 @@ class IndexTest extends TestCase
     {
         $response = $this->get('/products');
 
-        $response->assertSee('Prof. Sim');
         $response->assertStatus(200);
     }
 
-    // public function test_the_application_returns_a_404_response()
-    // {
-    //     $response = $this->get('/test');
+    public function test_the_products_list_page_empty_table()
+    {
+        $response = $this->get('/products');
 
-    //     $response->assertStatus(404);
-    // }
+        $response->assertStatus(200);
+        $response->assertSee('No Products Found ...');
+    }
+
 }
