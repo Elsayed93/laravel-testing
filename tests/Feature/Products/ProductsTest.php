@@ -54,11 +54,27 @@ class ProductsTest extends TestCase
     public function test_none_empty_products_table()
     {
 
+        $products =  Product::factory(10)->create();
+        $product = $products->first();
+
+        $response =  $this->actingAs($this->user)->get('/products');
+
+        $response->assertStatus(200);
+        $response->assertDontSee('No Products Found ...');
+
+        $response->assertViewHas('products', function ($collection) use ($product) {
+            return $collection->contains($product);
+        });
+    }
+
+
+    public function test_paginated_products_not_more_than_ten()
+    {
+
         $products =  Product::factory(11)->create();
         $lastProduct = $products->last();
 
         $response =  $this->actingAs($this->user)->get('/products');
-        // $response = $this->get('/products');
 
         $response->assertStatus(200);
         $response->assertDontSee('No Products Found ...');
@@ -67,6 +83,7 @@ class ProductsTest extends TestCase
             return !$collection->contains($lastProduct);
         });
     }
+
 
 
     public function test_admin_can_see_add_button()
@@ -139,7 +156,6 @@ class ProductsTest extends TestCase
 
         $response->assertSee('Edit');
         $response->assertStatus(200);
-
     }
 
     public function test_non_admin_can_not_see_edit_button()
@@ -148,39 +164,59 @@ class ProductsTest extends TestCase
 
         $response->assertDontSee('Edit');
         $response->assertStatus(200);
-
     }
 
 
-    // public function test_admin_can_go_to_edit_page()
-    // {
-    //     # code...
-    // $response = $this->get('products/1/edit');
-    // $response->assertStatus(200);
-    // $response->assertSee('Edit Product');
-    // }
+    // admin can go to edit page
+    public function test_admin_can_go_to_edit_page()
+    {
+        # code...
+        $response = $this->actingAs($this->admin)->get('products/1/edit');
+        $response->assertStatus(200);
+        $response->assertSee('Edit Product');
+    }
 
-    // public function test_update_product_in_database()
-    // {
-    //     $product = [
-    //         'name' => 'test product from testing',
-    //         'price' => 300,
-    //         'description' => 'test product description from testing',
-    //     ];
+    public function test_none_admin_can_not_go_to_edit_page()
+    {
+        # code...
+        $response = $this->actingAs($this->user)->get('products/1/edit');
+        $response->assertStatus(403);
+        $response->assertDontSee('Edit Product');
+    }
 
-    //     $tableRowsCount = Product::count();
-    //     $response = $this->actingAs($this->admin)->post('products', $product); // store product
+    // edit form
+    public function test_edit_form_contain_product_data()
+    {
+        $product = Product::factory()->create(); // Arrange 
 
-    //     $lastProduct = Product::orderBy('id', 'DESC')->first();
+        $response = $this->actingAs($this->admin)->get('products/' . $product->id . '/edit'); // act
 
-    //     $this->assertEquals($lastProduct->name, $product['name']);
-    //     $this->assertEquals($lastProduct->price, $product['price']);
-    //     $this->assertEquals($lastProduct->description, $product['description']);
+        // assert
+        $response->assertStatus(200);
+        $response->assertSee('value="' . $product->name . '"', false);
+        $response->assertSee('value="' . $product->price . '.00"', false);
+        $response->assertViewHas('product', $product);
+    }
 
-    //     $this->assertDatabaseCount('products', $tableRowsCount + 1);
-    //     $this->assertDatabaseHas('products', $product);
+    public function test_update_product_in_database()
+    {
+        $product = [
+            'name' => 'updated product from testing',
+            'price' => 1000,
+            'description' => 'updated product description from testing',
+        ];
 
-    //     $response->assertStatus(302);
-    //     $response->assertRedirect('products');
-    // }
+        $response = $this->actingAs($this->admin)->put('products/' . Product::where('id', 1)->first()->id, $product); // uppdate product
+
+        $updatedProduct = Product::where('id', 1)->first();
+        $this->assertEquals($updatedProduct->name, $product['name']);
+        $this->assertEquals($updatedProduct->price, $product['price']);
+        $this->assertEquals($updatedProduct->description, $product['description']);
+
+        // $this->assertDatabaseCount('products', $tableRowsCount + 1);
+        $this->assertDatabaseHas('products', $product);
+
+        $response->assertStatus(302);
+        $response->assertRedirect('products');
+    }
 }

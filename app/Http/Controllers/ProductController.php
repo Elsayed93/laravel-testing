@@ -70,7 +70,6 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         return view('products.edit', compact('product'));
-
     }
 
     /**
@@ -82,9 +81,13 @@ class ProductController extends Controller
      */
     public function update(UpdateRequest $request, Product $product)
     {
-        $product->update($request->validated());
-        return redirect()->route('products.index')->with('success', 'Data Updated Successfully');
 
+        if (auth()->user()->is_admin) {
+            $product->update($request->validated());
+            return redirect()->route('products.index')->with('success', 'Data Updated Successfully');
+        }
+
+        return abort(403);
     }
 
     /**
