@@ -12,9 +12,9 @@ class CurrencyConvert
     ];
 
 
-    public function convert(float $price, string $from, string $to) : float
+    public function convert(float $price, string $from, string $to): float
     {
-        $rate = self::RATES[$from][$to];
-        return round(($price * $rate), 2) ?? 0;
+        $rate = isset(self::RATES[$from][$to]) ?  self::RATES[$from][$to] : 0;
+        return round(($price * $rate), 2);
     }
 }
