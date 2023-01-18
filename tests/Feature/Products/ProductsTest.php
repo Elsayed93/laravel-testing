@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ProductsTest extends TestCase
@@ -218,5 +219,30 @@ class ProductsTest extends TestCase
 
         $response->assertStatus(302);
         $response->assertRedirect('products');
+    }
+
+
+    // // delete
+    public function test_delete_product_successfully()
+    {
+        // arrange 
+        $product = Product::factory()->create();
+        $productId = $product->id;
+        $productsCount = Product::count();
+
+        // act
+        $response = $this->actingAs($this->admin)->delete('products/' . $product->id);
+
+
+        // // assert 
+        $response->assertStatus(302);
+        $response->assertRedirect('products');
+
+
+        $isProductExist = DB::table('products')->where('id', $productId)->exists();
+
+        $this->assertEquals($isProductExist, false);
+        // $this->assertDatabaseMissing('products', $product->toArray());
+        $this->assertDatabaseCount('products', $productsCount - 1);
     }
 }

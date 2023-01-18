@@ -73,8 +73,18 @@
 
 
                         @if (auth()->user()->is_admin)
-                            <div class="card-footer">
-                                <a href="{{ route('products.edit', $product->id) }}" class="product-btn">Edit</a>
+                            <div class="card-footer" style="display: flex">
+                                <a href="{{ route('products.edit', $product->id) }}" class="product-btn"
+                                    style="display: inline-block; margin-right: 1rem;">
+                                    Edit
+                                </a>
+
+                                <form action="{{ route('products.destroy', $product->id) }}" method="post"
+                                    id="delete-product-form">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                                <a href="#" class="product-btn" id="delete-product-btn" style="background-color: #e33c3c">Delete</a>
                             </div>
                         @endif
 
@@ -91,6 +101,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"
         integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous">
+    </script>
+
+    <script>
+        let deleteBtn = document.getElementById('delete-product-btn');
+
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const confirmDelete = confirm('Are you sure ?!');
+
+            if (confirmDelete) {
+                document.getElementById('delete-product-form').submit();
+            }
+        });
     </script>
 
 </body>
