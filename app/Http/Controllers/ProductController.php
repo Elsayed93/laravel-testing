@@ -6,6 +6,8 @@ use App\Http\Requests\Products\StoreRequest;
 use App\Http\Requests\Products\UpdateRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Benchmark;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -22,6 +24,16 @@ class ProductController extends Controller
      */
     public function index()
     {
+
+        // $benchMark =  Benchmark::measure([
+        //     'paginated_products' => fn () => Product::paginate(10),
+        //     'all_products' => fn () => Product::all(),
+        //     'select_products' => fn () => Product::select('id', 'name')->get(),
+        // ]);
+
+        // // dd($benchMark);
+        // Log::info($benchMark);
+
         $products = Product::paginate(10);
         return view('products.index', compact('products'));
     }
@@ -100,6 +112,5 @@ class ProductController extends Controller
     {
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Data Deleted Successfully');
-
     }
 }
