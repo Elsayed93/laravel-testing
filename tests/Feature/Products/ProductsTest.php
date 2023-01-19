@@ -46,7 +46,6 @@ class ProductsTest extends TestCase
     public function test_empty_products_table()
     {
         $response = $this->actingAs($this->user)->get('products');
-        // $response = $this->get('/products');
 
         $response->assertStatus(200);
         $response->assertSee('No Products Found ...');
